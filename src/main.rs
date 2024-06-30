@@ -17,7 +17,7 @@ fn print_volume() {
         .unwrap();
 
     if switch == 0 {
-        println!("󰸈");
+        println!("󰸈 mute");
         return;
     }
     if p_volume == 0.0 {
@@ -34,14 +34,10 @@ fn print_volume() {
 }
 
 fn main() {
-    print_volume();
     let ctl = Ctl::open(CString::new("default").unwrap().as_ref(), false).unwrap();
     ctl.subscribe_events(true).unwrap();
-    for c in card::Iter::new() {
-        let ctl = Ctl::from_card(&c.unwrap(), false).unwrap();
-        ctl.subscribe_events(true).unwrap();
-        while let Some(maybe_event) = ctl.read().transpose() {
-            let event = maybe_event.unwrap();
+    loop {
+        if let Ok(Some(event)) = ctl.read() {
             if event.get_mask().value() {
                 print_volume();
             }
