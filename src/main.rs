@@ -1,4 +1,3 @@
-use alsa::card;
 use alsa::ctl::Ctl;
 use alsa::mixer::{Mixer, SelemChannelId, SelemId};
 use std::ffi::CString;
@@ -11,7 +10,7 @@ fn print_volume() {
     let volume = selem
         .get_playback_volume(SelemChannelId::FrontLeft)
         .unwrap();
-    let p_volume = ((volume as f64 / (max - min) as f64) as f32 * 100.0).round();
+    let p_volume = (volume as f64 / (max - min) as f64 * 100.0).round();
     let switch = selem
         .get_playback_switch(SelemChannelId::FrontLeft)
         .unwrap();
