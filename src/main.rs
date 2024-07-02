@@ -3,9 +3,14 @@ use alsa::mixer::{Mixer, SelemChannelId, SelemId};
 use std::ffi::CString;
 
 fn print_volume() {
-    let mixer = Mixer::new("default", false).unwrap();
-    let selem_id = SelemId::new("Master", 0);
-    let selem = mixer.find_selem(&selem_id).unwrap();
+    let mut mixer: Mixer;
+    let selem = loop {
+        mixer = Mixer::new("default", false).unwrap();
+        let selem_id = SelemId::new("Master", 0);
+        if let Some(selem) = mixer.find_selem(&selem_id) {
+            break selem;
+        }
+    };
     let (min, max) = selem.get_playback_volume_range();
     let volume = selem
         .get_playback_volume(SelemChannelId::FrontLeft)
