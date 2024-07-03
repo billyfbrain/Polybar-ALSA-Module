@@ -1,6 +1,9 @@
+use std::ffi::CString;
+
 use alsa::ctl::Ctl;
 use alsa::mixer::{Mixer, SelemChannelId, SelemId};
-use std::ffi::CString;
+use alsa::poll::poll;
+use alsa::PollDescriptors;
 
 fn print_volume() {
     let mut mixer: Mixer;
@@ -40,11 +43,11 @@ fn print_volume() {
 fn main() {
     let ctl = Ctl::open(CString::new("default").unwrap().as_ref(), false).unwrap();
     ctl.subscribe_events(true).unwrap();
+    let mut notify_fds = ctl.get().unwrap();
     loop {
-        if let Ok(Some(event)) = ctl.read() {
-            if event.get_mask().value() {
-                print_volume();
-            }
+        poll(&mut notify_fds, -1).unwrap();
+        if let Ok(Some(_)) = ctl.read() {
+            print_volume();
         }
     }
 }
